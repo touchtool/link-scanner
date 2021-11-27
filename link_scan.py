@@ -1,5 +1,7 @@
 import ssl
+import sys
 import urllib.request
+
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from selenium import webdriver
@@ -38,9 +40,12 @@ def is_valid_url(url: str):
     req = urllib.request.Request(url, method="HEAD")
     try:
         response = urlopen(req, context=context)
+        response.close()
     except HTTPError as e:
         if e.code == 403:
+            e.close()
             return True
+        e.close()
         return False
     else:
         return True
@@ -69,11 +74,10 @@ def main(websearch):
     # get href on that page
     list_link = []
     links = browser.find_elements_by_tag_name("a")
-
     for link in links:
         if link.tag_name == 'a':
-            url = link.get_attribute('href')
-        list_link.append(url)
+            url_href = link.get_attribute('href')
+            list_link.append(url_href)
     list_link = get_links(list_link)
     for link in list_link:
         # all link in the page
@@ -86,5 +90,5 @@ def main(websearch):
 
 
 if __name__ == "__main__":
-    web_search = str(input())
+    web_search = sys.argv[1]
     main(web_search)
